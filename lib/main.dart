@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ExpenseProvider()),
       ],
       child: MaterialApp(
-        title: 'Expense Tracker',
+        title: 'WealthJoy',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,

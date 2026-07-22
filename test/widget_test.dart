@@ -57,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify app bar title
-    expect(find.text('Expense Tracker'), findsOneWidget);
+    expect(find.text('WealthJoy'), findsOneWidget);
 
     // Net Worth = Cash ($1000) + Bank ($5000) = $6000.00
     expect(find.text('\$6000.00'), findsOneWidget);
@@ -87,6 +87,6 @@ void main() {
     // Navigate back to Home
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
-    expect(find.text('Expense Tracker'), findsOneWidget);
+    expect(find.text('WealthJoy'), findsOneWidget);
   });
 }

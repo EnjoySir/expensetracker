@@ -182,7 +182,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Center(
             child: Column(
               children: [
-                Text('Expense Tracker v2.5 (Biometrics Enabled)', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                Text('WealthJoy v2.5 (Biometrics Enabled)', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
                 const SizedBox(height: 4),
                 Text('Built with Flutter ❤️', style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
               ],

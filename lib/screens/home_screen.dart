@@ -362,7 +362,7 @@ class _HomeContentState extends State<HomeContent> {
             ],
             flexibleSpace: FlexibleSpaceBar(
               title: const Text(
-                'Expense Tracker',
+                'WealthJoy',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               background: Container(

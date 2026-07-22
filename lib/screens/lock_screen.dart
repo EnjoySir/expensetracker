@@ -98,7 +98,7 @@ class _LockScreenState extends State<LockScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Expense Tracker Security',
+              'WealthJoy Security',
               style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
