@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import '../database/database_helper.dart';
 import '../providers/expense_provider.dart';
 import '../models/transaction.dart';
 import '../services/sound_service.dart';
@@ -24,10 +26,13 @@ class JoyAssistantModal extends StatefulWidget {
 
 class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTickerProviderStateMixin {
   final TextEditingController _queryController = TextEditingController();
+  final SpeechToText _speechToText = SpeechToText();
+  
   late AnimationController _pulseController;
   
-  String _joyResponse = 'Hi there! I am Joy, your financial assistant. Say or type something like "What is my net worth?" or "Add \$20 for Groceries"';
-  bool _isListening = true;
+  String _joyResponse = 'Hi there! I am Joy, your financial assistant. Tap the mic or type something like "What is my net worth?" or "Add \$20 for Groceries"';
+  bool _isListening = false;
+  bool _speechInitialized = false;
 
   final List<String> _voiceSuggestions = [
     'What is my net worth?',
@@ -44,10 +49,88 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+    
+    _initSpeech();
+  }
+
+  Future<void> _initSpeech() async {
+    if (DatabaseHelper.isTesting) return;
+    try {
+      bool available = await _speechToText.initialize(
+        onStatus: (status) {
+          if (mounted) {
+            setState(() {
+              _isListening = status == 'listening';
+            });
+          }
+        },
+        onError: (errorNotification) {
+          if (mounted) {
+            setState(() {
+              _isListening = false;
+            });
+          }
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _speechInitialized = available;
+        });
+        if (available) {
+          _startListening();
+        }
+      }
+    } catch (_) {}
+  }
+
+  void _startListening() async {
+    if (DatabaseHelper.isTesting || !_speechInitialized) return;
+    try {
+      await _speechToText.listen(
+        onResult: (result) {
+          if (mounted) {
+            setState(() {
+              _queryController.text = result.recognizedWords;
+            });
+            if (result.finalResult && result.recognizedWords.isNotEmpty) {
+              _processCommand(result.recognizedWords);
+            }
+          }
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _isListening = true;
+        });
+      }
+    } catch (_) {}
+  }
+
+  void _stopListening() async {
+    if (DatabaseHelper.isTesting) return;
+    try {
+      await _speechToText.stop();
+      if (mounted) {
+        setState(() {
+          _isListening = false;
+        });
+      }
+    } catch (_) {}
+  }
+
+  void _toggleListening() {
+    if (_isListening) {
+      _stopListening();
+    } else {
+      _startListening();
+    }
   }
 
   @override
   void dispose() {
+    if (!DatabaseHelper.isTesting) {
+      _speechToText.stop();
+    }
     _queryController.dispose();
     _pulseController.dispose();
     super.dispose();
@@ -57,6 +140,7 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
     final query = text.trim().toLowerCase();
     if (query.isEmpty) return;
 
+    _stopListening();
     SoundService.playClick();
     final provider = Provider.of<ExpenseProvider>(context, listen: false);
     final month = provider.selectedMonth;
@@ -147,26 +231,33 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
           ),
           const SizedBox(height: 16),
           
-          // Glowing Orb Avatar for Joy
-          ScaleTransition(
-            scale: Tween<double>(begin: 0.95, end: 1.1).animate(_pulseController),
-            child: Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [Colors.purpleAccent, Colors.cyanAccent],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.cyanAccent.withOpacity(0.5),
-                    blurRadius: 20,
-                    spreadRadius: 2,
+          // Glowing Orb Avatar for Joy (Tap to toggle mic listening)
+          GestureDetector(
+            onTap: _toggleListening,
+            child: ScaleTransition(
+              scale: _isListening
+                  ? Tween<double>(begin: 0.95, end: 1.15).animate(_pulseController)
+                  : const AlwaysStoppedAnimation(1.0),
+              child: Container(
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: _isListening
+                        ? [Colors.redAccent, Colors.purpleAccent]
+                        : [Colors.purpleAccent, Colors.cyanAccent],
                   ),
-                ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: _isListening ? Colors.redAccent.withOpacity(0.6) : Colors.cyanAccent.withOpacity(0.5),
+                      blurRadius: 24,
+                      spreadRadius: 3,
+                    ),
+                  ],
+                ),
+                child: Icon(_isListening ? Icons.mic : Icons.mic_none, color: Colors.white, size: 36),
               ),
-              child: const Icon(Icons.graphic_eq, color: Colors.white, size: 36),
             ),
           ),
           const SizedBox(height: 12),
@@ -177,8 +268,8 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
           ),
           const SizedBox(height: 4),
           Text(
-            _isListening ? 'Listening for your voice...' : 'Joy active',
-            style: const TextStyle(color: Colors.cyanAccent, fontSize: 12, fontWeight: FontWeight.w500),
+            _isListening ? '🔴 Microphone Active - Speak now...' : 'Tap orb to start listening',
+            style: TextStyle(color: _isListening ? Colors.redAccent.shade100 : Colors.cyanAccent, fontSize: 12, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
 
