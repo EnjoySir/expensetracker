@@ -278,8 +278,8 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
                   ? Tween<double>(begin: 0.95, end: 1.15).animate(_pulseController)
                   : const AlwaysStoppedAnimation(1.0),
               child: Container(
-                width: 76,
-                height: 76,
+                width: 80,
+                height: 80,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
@@ -289,13 +289,13 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: _isListening ? Colors.redAccent.withOpacity(0.6) : Colors.cyanAccent.withOpacity(0.5),
+                      color: _isListening ? Colors.redAccent.withOpacity(0.7) : Colors.cyanAccent.withOpacity(0.5),
                       blurRadius: 24,
-                      spreadRadius: 3,
+                      spreadRadius: 4,
                     ),
                   ],
                 ),
-                child: Icon(_isListening ? Icons.mic : Icons.mic_none, color: Colors.white, size: 36),
+                child: Icon(_isListening ? Icons.stop_rounded : Icons.mic_rounded, color: Colors.white, size: 42),
               ),
             ),
           ),
@@ -307,8 +307,8 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
           ),
           const SizedBox(height: 4),
           Text(
-            _isListening ? '🔴 Microphone Active - Speak now...' : 'Tap orb to start listening',
-            style: TextStyle(color: _isListening ? Colors.redAccent.shade100 : Colors.cyanAccent, fontSize: 12, fontWeight: FontWeight.w500),
+            _isListening ? '🔴 Recording voice... Tap to finish' : '🎙️ Tap microphone orb or button to speak',
+            style: TextStyle(color: _isListening ? Colors.redAccent.shade100 : Colors.cyanAccent, fontSize: 12, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
 
@@ -368,7 +368,7 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
           ),
           const SizedBox(height: 16),
 
-          // Query Input Box
+          // Query Input Box with Dedicated Mic Button
           Row(
             children: [
               Expanded(
@@ -389,7 +389,16 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
                   onSubmitted: _processCommand,
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
+              CircleAvatar(
+                backgroundColor: _isListening ? Colors.redAccent : Colors.white.withOpacity(0.2),
+                child: IconButton(
+                  icon: Icon(_isListening ? Icons.stop_rounded : Icons.mic_rounded, color: _isListening ? Colors.white : Colors.cyanAccent, size: 22),
+                  tooltip: 'Tap to speak',
+                  onPressed: _toggleListening,
+                ),
+              ),
+              const SizedBox(width: 8),
               CircleAvatar(
                 backgroundColor: Colors.cyanAccent,
                 child: IconButton(
