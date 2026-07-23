@@ -6,6 +6,7 @@ import '../database/database_helper.dart';
 import '../providers/expense_provider.dart';
 import '../models/transaction.dart';
 import '../services/sound_service.dart';
+import '../services/tts_service.dart';
 import '../utils/helpers.dart';
 
 class JoyAssistantModal extends StatefulWidget {
@@ -86,6 +87,7 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
   void _startListening() async {
     if (DatabaseHelper.isTesting || !_speechInitialized) return;
     try {
+      await TtsService.stop();
       await _speechToText.listen(
         onResult: (result) {
           if (mounted) {
@@ -130,6 +132,7 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
   void dispose() {
     if (!DatabaseHelper.isTesting) {
       _speechToText.stop();
+      TtsService.stop();
     }
     _queryController.dispose();
     _pulseController.dispose();
@@ -147,7 +150,9 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
 
     String response = '';
 
-    if (query.contains('net worth') ||
+    if (query == 'hi' || query == 'hie' || query == 'hello' || query == 'hey' || query == 'hey joy' || query == 'hi joy' || query.contains('hello joy')) {
+      response = 'Hey there! How can I assist you with your finances today? 😊';
+    } else if (query.contains('net worth') ||
         query.contains('network') ||
         query.contains('net work') ||
         query.contains('networth') ||
@@ -212,6 +217,8 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
       _joyResponse = response;
       _isListening = false;
     });
+
+    TtsService.speak(response);
   }
 
   @override
