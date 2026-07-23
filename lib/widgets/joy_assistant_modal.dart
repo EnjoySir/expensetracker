@@ -147,7 +147,16 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
 
     String response = '';
 
-    if (query.contains('net worth') || query.contains('total balance') || query.contains('wallets')) {
+    if (query.contains('net worth') ||
+        query.contains('network') ||
+        query.contains('net work') ||
+        query.contains('networth') ||
+        query.contains('net-worth') ||
+        query.contains('total balance') ||
+        query.contains('my balance') ||
+        query.contains('wealth') ||
+        query.contains('how much') ||
+        query.contains('wallets')) {
       final netWorth = provider.netWorth;
       response = 'Your total Net Worth across all wallets is ${Helpers.formatCurrency(netWorth)}! 💰';
     } else if (query.contains('spend') || query.contains('spent') || query.contains('food') || query.contains('rent') || query.contains('groceries')) {
@@ -296,18 +305,34 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
             runSpacing: 8,
             alignment: WrapAlignment.center,
             children: _voiceSuggestions.map((suggestion) {
-              return ActionChip(
-                backgroundColor: Colors.white.withOpacity(0.15),
-                side: BorderSide.none,
-                avatar: const Icon(Icons.mic, size: 14, color: Colors.cyanAccent),
-                label: Text(
-                  suggestion,
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    _queryController.text = suggestion;
+                    _processCommand(suggestion);
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.cyanAccent.withOpacity(0.4), width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.mic, size: 14, color: Colors.cyanAccent),
+                        const SizedBox(width: 6),
+                        Text(
+                          suggestion,
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                onPressed: () {
-                  _queryController.text = suggestion;
-                  _processCommand(suggestion);
-                },
               );
             }).toList(),
           ),
