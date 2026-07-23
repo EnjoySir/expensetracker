@@ -17,7 +17,10 @@ class JoyAssistantModal extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const JoyAssistantModal(),
+      builder: (_) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(_).viewInsets.bottom),
+        child: const JoyAssistantModal(),
+      ),
     );
   }
 
@@ -247,19 +250,18 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        top: 20,
-        left: 20,
-        right: 20,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.deepPurple.shade900,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Container(
             width: 40,
             height: 4,
@@ -410,6 +412,7 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
