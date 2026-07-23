@@ -53,25 +53,31 @@ class AiInsightsCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.auto_awesome, color: Colors.deepPurple, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'AI Financial Assistant & Streak',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.deepPurple),
-                    ),
-                  ],
+                const Expanded(
+                  child: Row(
+                    children: [
+                      Icon(Icons.auto_awesome, color: Colors.deepPurple, size: 18),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'AI Assistant & Streak',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.deepPurple),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.orange.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('🔥 ', style: TextStyle(fontSize: 12)),
+                      const Text('🔥 ', style: TextStyle(fontSize: 11)),
                       Text(
                         '${noSpendDays > 0 ? noSpendDays : 0} No-Spend Days',
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange.shade900),

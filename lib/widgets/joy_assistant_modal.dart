@@ -152,6 +152,15 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
 
     if (query == 'hi' || query == 'hie' || query == 'hello' || query == 'hey' || query == 'hey joy' || query == 'hi joy' || query.contains('hello joy')) {
       response = 'Hey there! How can I assist you with your finances today? 😊';
+    } else if (query.contains('budget') || query.contains('remaining') || query.contains('limit')) {
+      final totalSpent = provider.getMonthlyTotal(month);
+      final budget = provider.monthlyBudget;
+      final remaining = budget - totalSpent;
+      if (remaining >= 0) {
+        response = 'You have ${Helpers.formatCurrency(remaining)} remaining out of your ${Helpers.formatCurrency(budget)} monthly budget! 👍';
+      } else {
+        response = 'You have exceeded your monthly budget by ${Helpers.formatCurrency(remaining.abs())}! ⚠️';
+      }
     } else if (query.contains('net worth') ||
         query.contains('network') ||
         query.contains('net work') ||
@@ -160,11 +169,13 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
         query.contains('total balance') ||
         query.contains('my balance') ||
         query.contains('wealth') ||
-        query.contains('how much') ||
         query.contains('wallets')) {
       final netWorth = provider.netWorth;
       response = 'Your total Net Worth across all wallets is ${Helpers.formatCurrency(netWorth)}! 💰';
-    } else if (query.contains('spend') || query.contains('spent') || query.contains('food') || query.contains('rent') || query.contains('groceries')) {
+    } else if (query.contains('income') || query.contains('earned') || query.contains('salary') || query.contains('make')) {
+      final totalIncome = provider.getMonthlyIncomeTotal(month);
+      response = 'Your total logged income for ${Helpers.getMonthName(month)} is ${Helpers.formatCurrency(totalIncome)}. 💵';
+    } else if (query.contains('spend') || query.contains('spent') || query.contains('food') || query.contains('rent') || query.contains('groceries') || query.contains('expense')) {
       final totalSpent = provider.getMonthlyTotal(month);
       final breakdown = provider.getMonthlyCategoryBreakdown(month);
       
@@ -174,16 +185,28 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
       } else {
         response = 'You have spent ${Helpers.formatCurrency(totalSpent)} in total for ${Helpers.getMonthName(month)}.';
       }
-    } else if (query.contains('budget') || query.contains('remaining')) {
-      final totalSpent = provider.getMonthlyTotal(month);
-      final budget = provider.monthlyBudget;
-      final remaining = budget - totalSpent;
-      if (remaining >= 0) {
-        response = 'You have ${Helpers.formatCurrency(remaining)} remaining out of your ${Helpers.formatCurrency(budget)} monthly budget! 👍';
+    } else if (query.contains('saving') || query.contains('savings') || query.contains('goal')) {
+      final goals = provider.savingsGoals;
+      final double totalSaved = goals.fold(0.0, (sum, g) => sum + g.savedAmount);
+      if (goals.isNotEmpty) {
+        response = 'You have ${goals.length} active savings goals with ${Helpers.formatCurrency(totalSaved)} saved so far! 🐖';
       } else {
-        response = 'You have exceeded your monthly budget by ${Helpers.formatCurrency(remaining.abs())}! ⚠️';
+        response = 'You haven\'t set up any savings goals yet. You can create one in the Savings Goals tab!';
       }
-    } else if (query.startsWith('add') || query.contains('spent') || query.contains('coffee') || query.contains('\$')) {
+    } else if (query.contains('debt') || query.contains('loan') || query.contains('owe')) {
+      final debts = provider.debts;
+      final borrowed = debts.where((d) => d.type == 'borrowed').fold(0.0, (s, d) => s + d.remainingBalance);
+      final lent = debts.where((d) => d.type == 'lent').fold(0.0, (s, d) => s + d.remainingBalance);
+      response = 'You owe ${Helpers.formatCurrency(borrowed)} in debts, and others owe you ${Helpers.formatCurrency(lent)}. 🤝';
+    } else if (query.contains('bill') || query.contains('due') || query.contains('reminder')) {
+      final unpaid = provider.bills.where((b) => b.isPaid == 0).toList();
+      final totalUnpaid = unpaid.fold(0.0, (s, b) => s + b.amount);
+      if (unpaid.isNotEmpty) {
+        response = 'You have ${unpaid.length} unpaid bills totaling ${Helpers.formatCurrency(totalUnpaid)}. Check Bills in More tab! 📄';
+      } else {
+        response = 'All your tracked bills are marked as paid! 🎉';
+      }
+    } else if (query.startsWith('add') || query.contains('coffee') || query.contains('bought') || query.contains('\$')) {
       // Parse amount & add expense command
       final RegExp numRegex = RegExp(r'\$?(\d+(\.\d+)?)');
       final match = numRegex.firstMatch(query);
@@ -210,7 +233,7 @@ class _JoyAssistantModalState extends State<JoyAssistantModal> with SingleTicker
     } else if (query.contains('tip') || query.contains('advice') || query.contains('help')) {
       response = 'Joy\'s Smart Tip: Try saving at least 20% of your monthly income. Transferring surplus to a Savings Goal automatically builds wealth!';
     } else {
-      response = 'I understood "$text"! You can ask me about your net worth, monthly budget, spending breakdown, or tell me to log transactions.';
+      response = 'I understood "$text"! You can ask me about your budget, net worth, income, spending breakdown, savings goals, bills, or tell me to log transactions.';
     }
 
     setState(() {
