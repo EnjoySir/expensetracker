@@ -134,7 +134,7 @@ class DatabaseHelper {
     ''');
 
     await _insertDefaultCategories(db);
-    await db.insert('settings', {'key': 'monthly_budget', 'value': '1000.0'});
+    await db.insert('settings', {'key': 'monthly_budget', 'value': '0.0'});
     await db.insert('settings', {'key': 'base_currency', 'value': 'USD'});
 
     await db.insert('accounts', {'name': 'Cash', 'type': 'Cash', 'balance': 0.0, 'currency': 'USD'});
@@ -144,7 +144,7 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)');
-      await db.insert('settings', {'key': 'monthly_budget', 'value': '1000.0'});
+      await db.insert('settings', {'key': 'monthly_budget', 'value': '0.0'});
     }
     if (oldVersion < 3) {
       try {

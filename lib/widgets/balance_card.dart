@@ -156,12 +156,12 @@ class BalanceCard extends StatelessWidget {
                 children: [
                   _buildBudgetStat(
                     label: 'Monthly Budget',
-                    value: Helpers.formatCurrency(budget),
+                    value: budget > 0 ? Helpers.formatCurrency(budget) : 'Not Set',
                   ),
                   _buildBudgetStat(
-                    label: remainingBudget >= 0 ? 'Remaining Budget' : 'Over Budget',
-                    value: Helpers.formatCurrency(remainingBudget.abs()),
-                    valueColor: remainingBudget >= 0 ? Colors.white : Colors.redAccent.shade100,
+                    label: budget > 0 ? (remainingBudget >= 0 ? 'Remaining Budget' : 'Over Budget') : 'Remaining',
+                    value: budget > 0 ? Helpers.formatCurrency(remainingBudget.abs()) : 'Not Set',
+                    valueColor: budget > 0 ? (remainingBudget >= 0 ? Colors.white : Colors.redAccent.shade100) : Colors.white70,
                   ),
                 ],
               ),
@@ -180,13 +180,15 @@ class BalanceCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${(progress * 100).toStringAsFixed(0)}% budget used',
+                    budget > 0
+                        ? '${(progress * 100).toStringAsFixed(0)}% budget used'
+                        : 'Tap ✏️ icon above to set your monthly budget',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.7),
                       fontSize: 11,
                     ),
                   ),
-                  if (totalExpenses > budget)
+                  if (budget > 0 && totalExpenses > budget)
                     const Text(
                       'Budget limit exceeded!',
                       style: TextStyle(

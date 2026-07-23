@@ -137,16 +137,18 @@ class HealthScoreCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Budget Usage: ${budgetUsagePct.toStringAsFixed(0)}%',
+                        budget > 0 ? 'Budget Usage: ${budgetUsagePct.toStringAsFixed(0)}%' : 'Budget Usage: Not Set',
                         style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        expenses <= budget
-                            ? '${Helpers.formatCurrency(budget - expenses)} remaining in budget'
-                            : 'Exceeded budget by ${Helpers.formatCurrency(expenses - budget)}',
+                        budget > 0
+                            ? (expenses <= budget
+                                ? '${Helpers.formatCurrency(budget - expenses)} remaining in budget'
+                                : 'Exceeded budget by ${Helpers.formatCurrency(expenses - budget)}')
+                            : 'Tap ✏️ on card above to set budget',
                         style: TextStyle(
-                          color: expenses <= budget ? Colors.white70 : Colors.redAccent.shade100,
+                          color: (budget > 0 && expenses > budget) ? Colors.redAccent.shade100 : Colors.white70,
                           fontSize: 11,
                         ),
                       ),
